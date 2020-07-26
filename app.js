@@ -4,7 +4,6 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 
 const queryRouter = require('./src/routes/query.route')
-const commentRouter = require('./src/routes/comment.route')
 const authRouter = require('./src/routes/auth.route')
 
 const { authentication } = require('./src/controllers/auth.controller')
@@ -18,7 +17,6 @@ app.use(cors())
 
 app.use('/auth', authRouter)
 app.use('/queries', authentication, queryRouter)
-app.use('/comments', commentRouter)
 
 const port = process.env.PORT || 3000
 mongoose.connect('mongodb://127.0.0.1/mentor-hub', {

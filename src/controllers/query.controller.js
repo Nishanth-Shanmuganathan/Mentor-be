@@ -27,18 +27,3 @@ exports.postQuery = async (req, res) => {
   }
 }
 
-//Cannot update all queries
-exports.putQuery = (req, res) => {
-  res.status(403).send({ message: "Put method is not allowed" })
-}
-
-//Deleting all the queries available
-exports.deleteQuery = async (req, res) => {
-  try {
-    const result = await Query.deleteMany({})
-    if (result.deletedCount === 0) { throw new Error() }
-    res.status(200).send({ message: 'Deleted ' + result.deletedCount + ' query(s)' })
-  } catch (error) {
-    res.status(400).send({ message: 'Unable to delete queries' })
-  }
-}
