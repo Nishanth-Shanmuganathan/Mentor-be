@@ -73,10 +73,16 @@ const userSchema = new mongoose.Schema({
     default: []
   }
 })
+userSchema.virtual('queries', {
+  ref: 'Query',
+  localField: '_id',
+  foreignField: 'author'
+})
 userSchema.plugin(mongooseValidator)
 userSchema.methods.toJSON = function () {
   const userObject = this.toObject()
   delete userObject.password
+  delete userObject.otp
   delete userObject.tokens
   return userObject
 }

@@ -19,12 +19,13 @@ exports.loginController = async (req, res) => {
     if (req.header('Authorization')) {
       const token = req.header('Authorization').replace('Bearer ', '')
       if (user.tokens.includes(token)) {
-        return res.status(200).send({ token })
+        return res.status(200).send({ token, user })
       }
     }
     const token = jwt.sign({ id: user._id }, process.env.ENCODE_STRING)
-    await user.tokens.push(token)
-    res.status(200).send({ token })
+    user.tokens.push(token)
+    await user.save()
+    res.status(200).send({ token, user })
   } catch (error) {
     console.log(error);
     res.status(400).send({ message: 'Authentication failed' })
@@ -81,7 +82,7 @@ exports.registerCredentials = async (req, res) => {
   user.roleDetails = details.professional
   try {
     await user.save()
-    res.status(200).send({ message: 'Registration successful' })
+    res.status(200).send({ message: 'Registration successful', user })
   } catch (error) {
     res.status(400).send({ message: 'Registration unsuccessful' })
   }
@@ -93,7 +94,7 @@ exports.resendOtp = async (req, res) => {
   try {
     if (user.tokens.includes(token)) {
       await otpMail(user.email, user.otp)
-      res.status(200).send({ mesage: 'OTP sending successful' })
+      res.status(200).send({ mesage: 'OTP sent successfully' })
     } else {
       res.status(400).send({ message: 'Authentication denied' })
     }
@@ -111,7 +112,7 @@ exports.verifyOtp = async (req, res) => {
       user.otp = undefined
       user.emailVerified = true
       await user.save()
-      res.status(200).send({ mesage: 'OTP sending successful' })
+      res.status(200).send({ mesage: 'OTP sent successfully' })
     } else {
       res.status(400).send({ message: 'Authentication denied' })
     }
@@ -130,7 +131,7 @@ exports.authentication = async (req, res, next) => {
     req.user = user
     next()
   } catch (error) {
-    console.log(error)
-    res.status(400).send('Authentication failed')
+    // console.log(error)
+    res.status(400).send({ message: 'Authentication failed' })
   }
 }

@@ -12,21 +12,25 @@ exports.getSpecificQuery = async (req, res) => {
   }
 }
 
-//Cannot add a specific query
-exports.postSpecificQuery = (req, res) => {
-  res.status(403).send({ message: "Post method is not allowed" })
-}
 
 //Updating the query
 exports.putSpecificQuery = async (req, res) => {
-  const allowedUpdate = ['description', 'domain']
-  const requestedUpdate = Object.keys(req.body)
-  const valid = requestedUpdate.every(update => allowedUpdate.includes(update))
+  const queryId = req.params.queryId
+  const answer = {
+    imageUrl: req.user.imageUrl,
+    query: req.body.answer.trim(),
+    username: req.user.username,
+    company: req.user.roleDetails.company
+  }
+  console.log(answer);
   try {
-    if (!valid) { throw new Error() }
-    const result = await Query.findByIdAndUpdate(req.params.queryId, req.body, { new: true })
-    res.status(201).send(result)
+    const query = await Query.findById(queryId).populate('author')
+    query.comments.push(answer)
+    // console.log(query);
+    await query.save()
+    res.status(201).send({ query })
   } catch (error) {
+    console.log(error);
     res.status(400).send({ message: "Unable to update query" })
   }
 }

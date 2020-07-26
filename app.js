@@ -7,6 +7,8 @@ const queryRouter = require('./src/routes/query.route')
 const commentRouter = require('./src/routes/comment.route')
 const authRouter = require('./src/routes/auth.route')
 
+const { authentication } = require('./src/controllers/auth.controller')
+
 const app = express()
 
 app.use(express.json())
@@ -15,7 +17,7 @@ app.use(cors())
 
 
 app.use('/auth', authRouter)
-app.use('/queries', queryRouter)
+app.use('/queries', authentication, queryRouter)
 app.use('/comments', commentRouter)
 
 const port = process.env.PORT || 3000

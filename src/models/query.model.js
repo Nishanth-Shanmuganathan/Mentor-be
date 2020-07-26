@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const CommentSchema = require('./comment.model')
 
 const querySchema = new mongoose.Schema({
-  description: {
+  query: {
     type: String,
     required: true
   },
@@ -11,10 +11,17 @@ const querySchema = new mongoose.Schema({
     required: true
   },
   author: {
-    type: mongoose.Schema.Types.ObjectId
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User'
   },
   comments: {
-    type: [CommentSchema],
+    type: [{
+      imageUrl: String,
+      query: String,
+      username: String,
+      company: String
+    }],
     default: []
   }
 },

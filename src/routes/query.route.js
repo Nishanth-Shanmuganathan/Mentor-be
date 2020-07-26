@@ -1,7 +1,7 @@
 const express = require('express')
 
 const { getQuery, postQuery, deleteQuery, putQuery } = require('../controllers/query.controller')
-const { getSpecificQuery, postSpecificQuery, deleteSpecificQuery, putSpecificQuery } = require('../controllers/query-specific.controller')
+const { getSpecificQuery, deleteSpecificQuery, putSpecificQuery } = require('../controllers/query-specific.controller')
 
 const queryRouter = express.Router()
 
@@ -13,7 +13,6 @@ queryRouter.route('/')
 
 queryRouter.route('/:queryId')
   .get(getSpecificQuery)
-  .post(postSpecificQuery)
   .put(putSpecificQuery)
   .delete(deleteSpecificQuery)
 
