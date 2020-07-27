@@ -1,7 +1,7 @@
 const express = require('express')
 // const bodyParser = require('body-parser')
 
-const { authentication, loginController, registerEmail, registerCredentials, resendOtp, verifyOtp } = require('../controllers/auth.controller')
+const { authentication, loginController, registerEmail, registerCredentials, resendOtp, verifyOtp, countriesList } = require('../controllers/auth.controller')
 
 const authRouter = express.Router()
 // authRouter.use(bodyParser.json())
@@ -16,4 +16,5 @@ authRouter.get('/resend', authentication, resendOtp)
 
 authRouter.post('/otp-verification', authentication, verifyOtp)
 
+authRouter.get('/countries-list/:search', countriesList)
 module.exports = authRouter

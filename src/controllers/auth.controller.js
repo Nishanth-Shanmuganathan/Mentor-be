@@ -2,6 +2,7 @@ const Cryptr = require('cryptr')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const otpGenerator = require('otp-generator')
+const request = require('request')
 
 const User = require('../models/user.model')
 const { registrationLink, otpMail } = require('../mails/mail')
@@ -18,12 +19,12 @@ exports.loginController = async (req, res) => {
     if (!match) { throw new Error('Authentication failed') }
     if (req.header('Authorization')) {
       const token = req.header('Authorization').replace('Bearer ', '')
-      if (user.tokens.includes(token)) {
+      if (user.tokens === token) {
         return res.status(200).send({ token, user })
       }
     }
     const token = jwt.sign({ id: user._id }, process.env.ENCODE_STRING)
-    user.tokens.push(token)
+    user.tokens = token
     await user.save()
     res.status(200).send({ token, user })
   } catch (error) {
@@ -50,7 +51,7 @@ exports.registerEmail = async (req, res) => {
     })
     const token = jwt.sign({ id: user._id }, process.env.ENCODE_STRING)
 
-    user.tokens.push(token)
+    user.tokens = token
     await user.save()
     await otpMail(req.body.email, otp)
     res.status(200).send({ token })
@@ -92,7 +93,7 @@ exports.registerCredentials = async (req, res) => {
 exports.resendOtp = async (req, res) => {
   const user = req.user
   try {
-    if (user.tokens.includes(token)) {
+    if (user.tokens === token) {
       await otpMail(user.email, user.otp)
       res.status(200).send({ mesage: 'OTP sent successfully' })
     } else {
@@ -127,7 +128,7 @@ exports.authentication = async (req, res, next) => {
   const { id } = jwt.decode(token)
   try {
     const user = await User.findOne({ _id: id })
-    if (!user || !user.tokens.includes(token)) throw new Error('Authentication failed')
+    if (!user || user.tokens !== token) throw new Error('Authentication failed')
     req.user = user
     next()
   } catch (error) {
@@ -135,3 +136,24 @@ exports.authentication = async (req, res, next) => {
     res.status(400).send({ message: 'Authentication failed' })
   }
 }
+
+exports.countriesList = (req, res) => {
+  const search = req.params.search
+  const formattingCountryList = body => {
+    const countries = []
+    body.forEach(ele => {
+      const country = {}
+      country['name'] = ele['name']
+      country['code'] = ele['callingCodes'][0]
+      countries.push(country)
+    })
+    return countries
+  }
+  console.log('https://api.mapbox.com/geocoding/v5/mapbox.places/' + search + '.json');
+  request({ url: 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + search + '.json?access_token=pk.eyJ1IjoibmlzaGFudGgwNSIsImEiOiJja2FmbGFocWwyNzNiMnZzOTEwNXJ2YXhwIn0._YYw0z0qyiSba5q1TCu7Mg', json: true }, (err, data) => {
+    if (!err) {
+      res.status(200).send({ data: data.body.features })
+    }
+  })
+}
+

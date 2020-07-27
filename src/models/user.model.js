@@ -69,8 +69,7 @@ const userSchema = new mongoose.Schema({
     type: StartupDetails || MentorDetails
   },
   tokens: {
-    type: [String],
-    default: []
+    type: String,
   }
 })
 userSchema.virtual('queries', {

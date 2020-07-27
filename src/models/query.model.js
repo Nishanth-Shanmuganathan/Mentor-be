@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const CommentSchema = require('./comment.model')
 
 const querySchema = new mongoose.Schema({
   query: {
