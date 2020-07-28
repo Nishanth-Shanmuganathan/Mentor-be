@@ -15,5 +15,7 @@ queryRouter.route('/:id')
 
 queryRouter.route('/:queryId/:commentId')
   .delete(deleteSpecificComment)
+
+
 module.exports = queryRouter
 
