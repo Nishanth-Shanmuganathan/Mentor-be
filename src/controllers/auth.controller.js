@@ -30,7 +30,6 @@ exports.loginController = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).send({ message: 'Authentication failed' })
-
   }
 }
 
@@ -149,7 +148,7 @@ exports.countriesList = (req, res) => {
     })
     return countries
   }
-  console.log('https://api.mapbox.com/geocoding/v5/mapbox.places/' + search + '.json');
+  // console.log('https://api.mapbox.com/geocoding/v5/mapbox.places/' + search + '.json');
   request({ url: 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + search + '.json?access_token=pk.eyJ1IjoibmlzaGFudGgwNSIsImEiOiJja2FmbGFocWwyNzNiMnZzOTEwNXJ2YXhwIn0._YYw0z0qyiSba5q1TCu7Mg', json: true }, (err, data) => {
     if (!err) {
       res.status(200).send({ data: data.body.features })
@@ -157,3 +156,24 @@ exports.countriesList = (req, res) => {
   })
 }
 
+
+exports.logout = async (req, res) => {
+  const id = req.user._id
+  try {
+    const user = await User.findById(id)
+    user.tokens = ''
+    await user.save()
+    res.status(200).send({ message: 'Logged out successfully' })
+  } catch (error) {
+    res.status(400).send({ message: 'Cannot logout' })
+  }
+}
+
+
+exports.getUser = (req, res) => {
+  if (req.user) {
+    res.status(200).send({ user: req.user })
+  } else {
+    res.status(400).send({ message: 'Authentication denied' })
+  }
+}

@@ -33,6 +33,22 @@ const MentorDetails = {
     type: Number
   }
 }
+
+const Notification = {
+  action: {
+    type: String,
+    required: true
+  },
+  doerName: {
+    type: String,
+    required: true
+  },
+  doerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
+}
 const userSchema = new mongoose.Schema({
   username: {
     type: String
@@ -70,8 +86,25 @@ const userSchema = new mongoose.Schema({
   },
   tokens: {
     type: String,
+  },
+  connections: {
+    type: [String] || [mongoose.Schema.Types.ObjectId],
+    default: [],
+  },
+  pending: {
+    type: [mongoose.Schema.Types.ObjectId],
+    default: [],
+  },
+  sent: {
+    type: [mongoose.Schema.Types.ObjectId],
+    default: [],
+  },
+  notifications: {
+    type: [Notification],
+    default: []
   }
 })
+
 userSchema.virtual('queries', {
   ref: 'Query',
   localField: '_id',

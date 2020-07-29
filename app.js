@@ -1,3 +1,4 @@
+const path = require('path')
 const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
@@ -15,7 +16,7 @@ app.use(express.json())
 app.use(bodyParser.json())
 app.use(cors())
 
-
+app.use('/public', express.static('public'))
 app.use('/auth', authRouter)
 app.use('/queries', authentication, queryRouter)
 app.use('/conn', authentication, connRouter)
