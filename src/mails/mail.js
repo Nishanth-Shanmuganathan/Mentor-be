@@ -11,7 +11,11 @@ exports.registrationLink = (email, encryptedString) => {
   })
 }
 exports.otpMail = (email, otp) => {
-  return sendgrid.send({
+  setTimeout(() => {
+    console.log('return');
+    return new Error('Unable to send mail due to poor internet connectivity')
+  }, 10000)
+  sendgrid.send({
     to: email,
     from: 'nishanth.mailer@gmail.com',
     subject: 'One Time Password (OTP) from Mentor-Hub',
@@ -23,4 +27,5 @@ exports.otpMail = (email, otp) => {
         Thank you
     `
   })
+    .catch(err => { throw new Error('Unable to send mail') })
 }

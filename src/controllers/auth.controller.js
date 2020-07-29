@@ -15,8 +15,9 @@ exports.loginController = async (req, res) => {
   const password = req.body.password.trim()
   try {
     const user = await User.findOne({ email })
+    if (!user) throw new Error()
     const match = await bcrypt.compare(password, user.password)
-    if (!match) { throw new Error('Authentication failed') }
+    if (!match) throw new Error()
     if (req.header('Authorization')) {
       const token = req.header('Authorization').replace('Bearer ', '')
       if (user.tokens === token) {
@@ -51,8 +52,11 @@ exports.registerEmail = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.ENCODE_STRING)
 
     user.tokens = token
-    await user.save()
+
+    console.log('send');
     await otpMail(req.body.email, otp)
+    console.log('save');
+    await user.save()
     res.status(200).send({ token })
   } catch (error) {
     if (error.message.includes('User validation failed')) {
@@ -124,8 +128,8 @@ exports.verifyOtp = async (req, res) => {
 exports.authentication = async (req, res, next) => {
   const token = req.headers.authorization.replace('Bearer ', '')
   const otp = req.body.otp
-  const { id } = jwt.decode(token)
   try {
+    const { id } = jwt.decode(token)
     const user = await User.findOne({ _id: id })
     if (!user || user.tokens !== token) throw new Error('Authentication failed')
     req.user = user
