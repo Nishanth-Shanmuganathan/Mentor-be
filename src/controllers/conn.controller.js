@@ -170,16 +170,16 @@ exports.remove = async (req, res) => {
     const index2 = receiver.connections.findIndex(ele => ele.toString() === sender._id.toString())
     receiver.connections.splice(index2, 1)
 
-    const index3 = sender.notifications.findIndex(ele => ele.doerId.toString() === receiver._id.toString() && (ele.action === 'sent' || ele.action === 'connected'))
+    const index3 = sender.notifications.findIndex(ele => ele.doerId.toString() === receiver._id.toString())
     sender.notifications.splice(index3, 1)
 
-    const index4 = receiver.notifications.findIndex(ele => ele.doerId.toString() === sender._id.toString() && (ele.action === 'received' || ele.action === "accepted"))
+    const index4 = receiver.notifications.findIndex(ele => ele.doerId.toString() === sender._id.toString())
     receiver.notifications.splice(index4, 1)
 
     await sender.save()
     await receiver.save()
 
-    res.status(200).send({ message: 'Connection removed', user: sender })
+    res.status(200).send({ message: 'Connection removed', user: sender, userConnections: sender.connections })
   } catch (error) {
     console.log(error);
     res.status(400).send({ message: 'Cannot withdraw request' })
