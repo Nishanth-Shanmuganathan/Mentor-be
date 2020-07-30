@@ -2,15 +2,6 @@ const mongoose = require('mongoose')
 
 const Query = require('../models/query.model')
 
-//Getting the specific query of a user
-exports.getSpecificQuery = async (req, res) => {
-  try {
-    const query = await Query.findById(req.params.queryId)
-    res.status(200).send(query)
-  } catch (error) {
-    res.status(404).send({ message: 'Query not found' })
-  }
-}
 
 
 //Updating the query
@@ -46,6 +37,8 @@ exports.deleteSpecificQuery = async (req, res) => {
     res.status(404).send({ message: "Unable to delete query" })
   }
 }
+
+
 exports.deleteSpecificComment = async (req, res) => {
   const queryId = req.params.queryId
   const commentId = req.params.commentId

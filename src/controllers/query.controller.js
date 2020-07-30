@@ -5,11 +5,21 @@ const Query = require('../models/query.model')
 
 //Getting all the available queries of a user
 exports.getQuery = async (req, res) => {
+  const user = req.user
   try {
-    const queries = await Query.find({ author: req.user._id }).populate('author')
+    let queries = [];
+    if (user.role === 'Start-up') {
+      queries = await Query.find({ author: user._id }).populate('author')
+    } else {
+      for (let i = 0; i < user.connections.length; i++) {
+        const userQueries = await Query.find({ author: user.connections[i] }).populate('author')
+        queries = [...queries, ...userQueries]
+      }
+    }
     if (queries.length === 0) { throw new Error() }
     res.status(200).send({ queries })
   } catch (error) {
+    console.log(error);
     res.status(404).send({ message: 'No queries not found' })
   }
 }
@@ -26,14 +36,13 @@ exports.postQuery = async (req, res) => {
     if (user.connections.length) {
       user.connections.forEach(async (connectionId) => {
         const connection = await User.findById(connectionId)
-        connection.notifications.push({ action: 'query', doerId: id, doerName: user.username })
         await connection.save()
       });
       console.log('Addition updated to connections');
     }
 
     await result.populate('author').execPopulate()
-    res.status(201).send({ message: 'Query added successfully', query: result })
+    res.status(201).send({ message: 'Query added successfully', query: result, user })
   } catch (error) {
     res.status(400).send({ message: 'Unable to add query' })
   }

@@ -1,7 +1,7 @@
 const express = require('express')
 
 const { getQuery, postQuery } = require('../controllers/query.controller')
-const { getSpecificQuery, deleteSpecificQuery, putSpecificQuery, deleteSpecificComment } = require('../controllers/query-specific.controller')
+const { deleteSpecificQuery, putSpecificQuery, deleteSpecificComment } = require('../controllers/query-specific.controller')
 
 const queryRouter = express.Router()
 

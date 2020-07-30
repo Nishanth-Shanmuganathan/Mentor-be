@@ -26,6 +26,21 @@ exports.getConnections = async (req, res) => {
   }
 }
 
+exports.getMyConnections = async (req, res) => {
+  const currentUser = req.user
+  try {
+    let myConnections = [];
+
+    for (let i = 0; i < currentUser.connections.length; i++) {
+      const result = await User.findById(currentUser.connections[i])
+      myConnections.push(result)
+    }
+    res.status(200).send({ data: myConnections })
+  } catch (error) {
+    res.status(404).send({ message: 'Unable to fetch users' })
+  }
+}
+
 exports.sendRequest = async (req, res) => {
   const receiverId = req.params.id
   const senderId = req.user._id
@@ -105,18 +120,19 @@ exports.accept = async (req, res) => {
   try {
     const sender = await User.findById(senderId)
     const index = sender.sent.findIndex(ele => ele.toString() === receiver._id.toString())
-    sender.sent.splice(index, 1)
-    if (sender.connections.findIndex(ele => ele.toString() === receiver._id.toString()) < 0) {
+
+    if (sender.connections.findIndex(ele => ele.toString() === receiver._id.toString()) >= 0) {
       return res.status(400).send({ message: 'User is already in connection' })
     }
-    sender.connections.unshift(receiver._id)
-
-
     const index2 = receiver.pending.findIndex(ele => ele.toString() === senderId.toString())
-    receiver.pending.splice(index2, 1)
-    if (receiver.connections.findIndex(ele => ele.toString() === sender._id.toString()) < 0) {
+    if (receiver.connections.findIndex(ele => ele.toString() === sender._id.toString()) >= 0) {
       return res.status(400).send({ message: 'User is already in connection' })
     }
+
+
+    sender.sent.splice(index, 1)
+    sender.connections.unshift(receiver._id)
+    receiver.pending.splice(index2, 1)
     receiver.connections.unshift(sender._id)
 
     const index3 = sender.notifications.findIndex(ele => ele.doerId.toString() === receiver._id.toString() && ele.action === 'sent')
@@ -138,5 +154,34 @@ exports.accept = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).send({ message: 'Cannot accept request' })
+  }
+}
+
+
+exports.remove = async (req, res) => {
+  const sender = req.user
+  const receiverId = req.params.id
+  try {
+    const receiver = await User.findById(receiverId)
+
+    const index = sender.connections.findIndex(ele => ele.toString() === receiver._id.toString())
+    sender.connections.splice(index, 1)
+
+    const index2 = receiver.connections.findIndex(ele => ele.toString() === sender._id.toString())
+    receiver.connections.splice(index2, 1)
+
+    const index3 = sender.notifications.findIndex(ele => ele.doerId.toString() === receiver._id.toString() && (ele.action === 'sent' || ele.action === 'connected'))
+    sender.notifications.splice(index3, 1)
+
+    const index4 = receiver.notifications.findIndex(ele => ele.doerId.toString() === sender._id.toString() && (ele.action === 'received' || ele.action === "accepted"))
+    receiver.notifications.splice(index4, 1)
+
+    await sender.save()
+    await receiver.save()
+
+    res.status(200).send({ message: 'Connection removed', user: sender })
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({ message: 'Cannot withdraw request' })
   }
 }
