@@ -20,6 +20,9 @@ authRouter.get('/logout', authentication, logout)
 
 authRouter.get('/countries-list/:search', countriesList)
 
+authRouter.get('/user/:userId', authentication, getUser)
+
 authRouter.get('/user', authentication, getUser)
+
 
 module.exports = authRouter

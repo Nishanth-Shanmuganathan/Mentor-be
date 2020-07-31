@@ -174,8 +174,16 @@ exports.logout = async (req, res) => {
 }
 
 
-exports.getUser = (req, res) => {
-  if (req.user) {
+exports.getUser = async (req, res) => {
+  const userId = req.params.userId
+  if (userId) {
+    try {
+      const user = await User.findById(userId)
+      res.status(200).send({ user })
+    } catch (error) {
+      res.status(404).send({ message: 'User not found' })
+    }
+  } else if (req.user) {
     res.status(200).send({ user: req.user })
   } else {
     res.status(400).send({ message: 'Authentication denied' })
