@@ -19,7 +19,6 @@ exports.getQuery = async (req, res) => {
     if (queries.length === 0) { throw new Error() }
     res.status(200).send({ queries })
   } catch (error) {
-    console.log(error);
     res.status(404).send({ message: 'No queries not found' })
   }
 }
